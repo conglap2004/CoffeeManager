@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Quản lý nhân viên - CoffeeManager</title>
+  <link href="main.css" rel="stylesheet">
+   <link rel="icon" href ="https://dynamic.design.com/asset/logo/a58dbcd0-c6c4-4efc-9344-8f1cb61e134f/logo-search-grid-2x?logoTemplateVersion=1&v=638817514014730000&text=coffee">
+  <style>
+    body { font-family: Arial; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    input, button { padding: 6px; margin: 4px 0; }
+    .form-section { margin-top: 20px; }
+    .status-message { 
+      padding: 10px; 
+      margin: 10px 0; 
+      border-radius: 4px; 
+      display: none; 
+    }
+    .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  </style>
+</head>
+<body>
+  <div class="container">
+        <div class="header">
+        <div class="logo">
+            <img src="https://dynamic.design.com/asset/logo/a58dbcd0-c6c4-4efc-9344-8f1cb61e134f/logo-search-grid-2x?logoTemplateVersion=1&v=638817514014730000&text=coffee" alt="Coffee icon">
+            CoffeeManager
+        </div>
+        <div class="nav-menu">
+            <ul class="Lv1">
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=2797&format=png" width="30"><a href="index.html">Trang chủ</a></li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=8287&format=png" width="30"> Cửa Hàng
+                    <ul class="Lv2">
+                        <li><a href="nhanvien.html">Quản lý nhân viên</a></li>
+                        <li><a href="khachhang.html">Quản lý khách hàng </a></li>
+                        <li><a href="datban.html">Màn hình Order</a></li>
+                    </ul>
+                </li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=7977&format=png" width="30"><a href="Thuchi.html"> Thu Chi</a> </li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=12428&format=png" width="30">Hàng Hóa 
+                    <ul class="Lv2">
+                        <li><a href="Thucdon.html"> Sản Phẩm</a></li>
+                        <li><a href="danhmuc.html">Danh mục </a> </li>
+                    </ul>
+                </li>
+                 <li><img class="icon1" src="https://img.icons8.com/?size=100&id=7819&format=png" width="30"><a href="Dangnhap.html"> Đăng xuất </a></li>
+
+
+            </ul>
+        </div>
+    </div>
+
+  <h2>Quản lý nhân viên</h2>
+
+  <div id="statusMessage" class="status-message"></div>
+
+  <table id="nhanvien-table">
+    <thead>
+      <tr>
+        <th>Họ tên</th>
+        <th>Email</th>
+        <th>SĐT</th>
+        <th>Chức vụ</th>
+        <th>Hành động</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="form-section">
+    <h3 id="form-title">Thêm nhân viên</h3>
+    <input type="hidden" id="editIndex">
+    <input type="text" id="hoTen" placeholder="Họ tên" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="text" id="soDienThoai" placeholder="Số điện thoại" required>
+    <input type="text" id="chucVu" placeholder="Chức vụ" required>
+    <br>
+    <button onclick="saveNhanVien()">Lưu</button>
+    <button onclick="clearForm()">Xóa form</button>
+  </div>
+
+  <script>
+    let nhanViens = [];
+    let editingId = null;
+
+    // Hàm hiển thị thông báo trạng thái
+    function showStatusMessage(message, type = 'success') {
+        const statusDiv = document.getElementById('statusMessage');
+        statusDiv.textContent = message;
+        statusDiv.className = `status-message ${type}`;
+        statusDiv.style.display = 'block';
+        
+        // Tự động ẩn sau 3 giây
+        setTimeout(() => {
+            statusDiv.style.display = 'none';
+        }, 3000);
+    }
+
+    // Tải dữ liệu từ server khi trang load
+    document.addEventListener('DOMContentLoaded', async function() {
+        await fetchEmployees();
+        renderTable();
+    });
+
+    // Lấy danh sách nhân viên từ server
+    async function fetchEmployees() {
+        try {
+            const response = await fetch('http://localhost:3000/api/employees/all');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+            }
+            nhanViens = await response.json();
+        } catch (error) {
+            console.error('Lỗi khi tải danh sách nhân viên:', error);
+            showStatusMessage('Lỗi khi tải danh sách nhân viên! Vui lòng kiểm tra server.', 'error');
+            nhanViens = [];
+        }
+    }
+
+    // Hiển thị bảng
+    function renderTable() {
+        const tbody = document.querySelector("#nhanvien-table tbody");
+        tbody.innerHTML = "";
+        
+        if (nhanViens.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666;">Chưa có nhân viên nào</td></tr>';
+            return;
+        }
+
+        nhanViens.forEach((nv) => {
+            const row = `<tr>
+                <td>${nv.hoTen}</td>
+                <td>${nv.email}</td>
+                <td>${nv.soDienThoai}</td>
+                <td>${nv.chucVu}</td>
+                <td>
+                    <button onclick="editNhanVien('${nv._id}')">Sửa</button>
+                    <button onclick="deleteNhanVien('${nv._id}')">Xóa</button>
+                </td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+    }
+
+    // Lưu nhân viên (thêm mới hoặc cập nhật)
+    async function saveNhanVien() {
+        const hoTen = document.getElementById("hoTen").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const soDienThoai = document.getElementById("soDienThoai").value.trim();
+        const chucVu = document.getElementById("chucVu").value.trim();
+
+        // Validation
+        if (!hoTen || !email || !soDienThoai || !chucVu) {
+            showStatusMessage('Vui lòng điền đầy đủ thông tin!', 'error');
+            return;
+        }
+
+        const nhanVien = { hoTen, email, soDienThoai, chucVu };
+
+        try {
+            let response;
+            if (editingId) {
+                // Cập nhật
+                response = await fetch(`http://localhost:3000/api/employees/update/${editingId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(nhanVien)
+                });
+            } else {
+                // Thêm mới
+                response = await fetch('http://localhost:3000/api/employees/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(nhanVien)
+                });
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                showStatusMessage(result.message, 'success');
+                await fetchEmployees();
+                renderTable();
+                clearForm();
+            } else {
+                showStatusMessage('Lỗi: ' + result.message, 'error');
+            }
+        } catch (error) {
+            console.error('Lỗi khi lưu nhân viên:', error);
+            showStatusMessage('Lỗi khi lưu nhân viên! Vui lòng thử lại.', 'error');
+        }
+    }
+
+    // Sửa nhân viên
+    function editNhanVien(id) {
+        const nv = nhanViens.find(emp => emp._id === id);
+        if (!nv) {
+            showStatusMessage('Không tìm thấy nhân viên!', 'error');
+            return;
+        }
+
+        document.getElementById("hoTen").value = nv.hoTen;
+        document.getElementById("email").value = nv.email;
+        document.getElementById("soDienThoai").value = nv.soDienThoai;
+        document.getElementById("chucVu").value = nv.chucVu;
+        document.getElementById("form-title").innerText = "Sửa nhân viên";
+        editingId = id;
+    }
+
+    // Xóa nhân viên
+    async function deleteNhanVien(id) {
+        if (confirm("Bạn có chắc chắn muốn xóa nhân viên này?")) {
+            try {
+                const response = await fetch(`http://localhost:3000/api/employees/delete/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showStatusMessage(result.message, 'success');
+                    await fetchEmployees();
+                    renderTable();
+                } else {
+                    showStatusMessage('Lỗi: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Lỗi khi xóa nhân viên:', error);
+                showStatusMessage('Lỗi khi xóa nhân viên! Vui lòng thử lại.', 'error');
+            }
+        }
+    }
+
+    // Xóa form
+    function clearForm() {
+        document.getElementById("hoTen").value = "";
+        document.getElementById("email").value = "";
+        document.getElementById("soDienThoai").value = "";
+        document.getElementById("chucVu").value = "";
+        document.getElementById("form-title").innerText = "Thêm nhân viên";
+        editingId = null;
+    }
+  </script>
+
+</body>
+</html>

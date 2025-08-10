@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Quản lý khách hàng - CoffeeManager</title>
+  <link href="main.css" rel="stylesheet">
+   <link rel="icon" href ="https://dynamic.design.com/asset/logo/a58dbcd0-c6c4-4efc-9344-8f1cb61e134f/logo-search-grid-2x?logoTemplateVersion=1&v=638817514014730000&text=coffee">
+  <style>
+    body { font-family: Arial;  }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
+    th { background-color: #f4f4f4; }
+    input, button { padding: 6px; margin: 4px 0; }
+    .status-message { 
+      padding: 10px; 
+      margin: 10px 0; 
+      border-radius: 4px; 
+      display: none; 
+    }
+    .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  </style>
+</head>
+<body>
+<div class="container">
+        <div class="header">
+        <div class="logo">
+            <img src="https://dynamic.design.com/asset/logo/a58dbcd0-c6c4-4efc-9344-8f1cb61e134f/logo-search-grid-2x?logoTemplateVersion=1&v=638817514014730000&text=coffee" alt="Coffee icon">
+            CoffeeManager
+        </div>
+        <div class="nav-menu">
+            <ul class="Lv1">
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=2797&format=png" width="30"><a href="index.html">Trang chủ</a></li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=8287&format=png" width="30"> Cửa Hàng
+                    <ul class="Lv2">
+                        <li><a href="nhanvien.html">Quản lý nhân viên</a></li>
+                        <li><a href="khachhang.html">Quản lý khách hàng </a></li>
+                        <li><a href="datban.html">Màn hình Order</a></li>
+                    </ul>
+                </li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=7977&format=png" width="30"><a href="Thuchi.html"> Thu Chi</a> </li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=12428&format=png" width="30">Hàng Hóa 
+                    <ul class="Lv2">
+                        <li><a href="Thucdon.html"> Sản Phẩm</a></li>
+                        <li><a href="danhmuc.html">Danh mục </a> </li>
+                    </ul>
+                </li>
+                 <li><img class="icon1" src="https://img.icons8.com/?size=100&id=7819&format=png" width="30"><a href="Dangnhap.html"> Đăng xuất </a></li>
+
+
+            </ul>
+        </div>
+    </div>
+  <h2>Quản lý khách hàng</h2>
+
+  <div id="statusMessage" class="status-message"></div>
+
+  <input type="hidden" id="index">
+  <label>Họ tên:</label><br>
+  <input type="text" id="tenKH" placeholder="Nhập họ tên"><br>
+  <label>Số điện thoại:</label><br>
+  <input type="text" id="sdt" placeholder="Nhập SĐT"><br>
+  <label>Email:</label><br>
+  <input type="email" id="email" placeholder="Nhập Email"><br>
+  <label>Địa chỉ:</label><br>
+  <input type="text" id="diaChi" placeholder="Nhập địa chỉ"><br>
+  <button onclick="luuKhachHang()">Lưu</button>
+  <button onclick="xoaForm()">Xóa form</button>
+
+  <h3>Danh sách khách hàng</h3>
+  <table id="bangKH">
+    <thead>
+      <tr>
+        <th>Họ tên</th>
+        <th>SĐT</th>
+        <th>Email</th>
+        <th>Địa chỉ</th>
+        <th>Ghi chú</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+     let khachHangs = [];
+    let editingId = null;
+
+    // Hàm hiển thị thông báo trạng thái
+    function showStatusMessage(message, type = 'success') {
+        const statusDiv = document.getElementById('statusMessage');
+        statusDiv.textContent = message;
+        statusDiv.className = `status-message ${type}`;
+        statusDiv.style.display = 'block';
+        
+        // Tự động ẩn sau 3 giây
+        setTimeout(() => {
+            statusDiv.style.display = 'none';
+        }, 3000);
+    }
+
+    // Tải dữ liệu từ server khi trang load
+    document.addEventListener('DOMContentLoaded', async function() {
+        await fetchCustomers();
+        hienThiBang();
+    });
+
+    // Lấy danh sách khách hàng từ server
+    async function fetchCustomers() {
+        try {
+            const response = await fetch('http://localhost:3000/api/customers/all');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+            }
+            khachHangs = await response.json();
+        } catch (error) {
+            console.error('Lỗi khi tải danh sách khách hàng:', error);
+            showStatusMessage('Lỗi khi tải danh sách khách hàng! Vui lòng kiểm tra server.', 'error');
+            khachHangs = [];
+        }
+    }
+
+    // Hiển thị bảng
+    function hienThiBang() {
+        const tbody = document.querySelector("#bangKH tbody");
+        tbody.innerHTML = "";
+        
+        if (khachHangs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666;">Chưa có khách hàng nào</td></tr>';
+            return;
+        }
+
+        khachHangs.forEach((kh) => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${kh.ten}</td>
+                    <td>${kh.sdt}</td>
+                    <td>${kh.email}</td>
+                    <td>${kh.diaChi}</td>
+                    <td>
+                        <button onclick="suaKH('${kh._id}')">Sửa</button>
+                        <button onclick="xoaKH('${kh._id}')">Xóa</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    // Lưu khách hàng (thêm mới hoặc cập nhật)
+    async function luuKhachHang() {
+        const ten = document.getElementById("tenKH").value.trim();
+        const sdt = document.getElementById("sdt").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const diaChi = document.getElementById("diaChi").value.trim();
+
+        // Validation
+        if (!ten || !sdt || !email || !diaChi) {
+            showStatusMessage('Vui lòng điền đầy đủ thông tin!', 'error');
+            return;
+        }
+
+        const khachHang = { ten, sdt, email, diaChi };
+
+        try {
+            let response;
+            if (editingId) {
+                // Cập nhật
+                response = await fetch(`http://localhost:3000/api/customers/update/${editingId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(khachHang)
+                });
+            } else {
+                // Thêm mới
+                response = await fetch('http://localhost:3000/api/customers/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(khachHang)
+                });
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                showStatusMessage(result.message, 'success');
+                await fetchCustomers();
+                hienThiBang();
+                xoaForm();
+            } else {
+                showStatusMessage('Lỗi: ' + result.message, 'error');
+            }
+        } catch (error) {
+            console.error('Lỗi khi lưu khách hàng:', error);
+            showStatusMessage('Lỗi khi lưu khách hàng! Vui lòng thử lại.', 'error');
+        }
+    }
+
+    // Sửa khách hàng
+    function suaKH(id) {
+        const kh = khachHangs.find(customer => customer._id === id);
+        if (!kh) {
+            showStatusMessage('Không tìm thấy khách hàng!', 'error');
+            return;
+        }
+
+        document.getElementById("tenKH").value = kh.ten;
+        document.getElementById("sdt").value = kh.sdt;
+        document.getElementById("email").value = kh.email;
+        document.getElementById("diaChi").value = kh.diaChi;
+        editingId = id;
+    }
+
+    // Xóa khách hàng
+    async function xoaKH(id) {
+        if (confirm("Bạn có chắc muốn xóa khách hàng này?")) {
+            try {
+                const response = await fetch(`http://localhost:3000/api/customers/delete/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showStatusMessage(result.message, 'success');
+                    await fetchCustomers();
+                    hienThiBang();
+                } else {
+                    showStatusMessage('Lỗi: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Lỗi khi xóa khách hàng:', error);
+                showStatusMessage('Lỗi khi xóa khách hàng! Vui lòng thử lại.', 'error');
+            }
+        }
+    }
+
+    // Xóa form
+    function xoaForm() {
+        document.getElementById("tenKH").value = "";
+        document.getElementById("sdt").value = "";
+        document.getElementById("email").value = "";
+        document.getElementById("diaChi").value = "";
+        editingId = null;
+    }
+  </script>
+
+</body>
+</html>

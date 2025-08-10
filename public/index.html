@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href ="https://dynamic.design.com/asset/logo/a58dbcd0-c6c4-4efc-9344-8f1cb61e134f/logo-search-grid-2x?logoTemplateVersion=1&v=638817514014730000&text=coffee">
+    <title>CoffeeManager - Trang chủ </title>
+    <link href="main.css" rel="stylesheet">
+   
+        
+       
+    
+</head>
+<body>
+    <!-- Header với logo và menu -->
+    <div class="header">
+        <div class="logo">
+            <img src="https://dynamic.design.com/asset/logo/a58dbcd0-c6c4-4efc-9344-8f1cb61e134f/logo-search-grid-2x?logoTemplateVersion=1&v=638817514014730000&text=coffee" alt="Coffee icon">
+            CoffeeManager
+        </div>
+        <div class="nav-menu">
+            <ul class="Lv1">
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=2797&format=png" width="30">Trang chủ</li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=8287&format=png" width="30"> Cửa Hàng
+                    <ul class="Lv2">
+                         <li><a href="nhanvien.html">Quản lý nhân viên</a></li>
+                        <li><a href="khachhang.html">Quản lý khách hàng </a></li>
+                        <li><a href="datban.html">Màn hình Order</a></li>
+                    </ul>
+                </li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=7977&format=png" width="30"><a href="Thuchi.html"> Thu Chi</a> </li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=12428&format=png" width="30">Hàng Hóa 
+                    <ul class="Lv2">
+                        <li><a href="Thucdon.html">Sản Phẩm</a></li>
+                        <li><a href="danhmuc.html">Danh mục </a> </li>
+                    </ul>
+                </li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=7819&format=png" width="30"><a href="Dangnhap.html">Đăng xuất </a></li>
+
+
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Hero section với hình ảnh lớn -->
+    <div class="hero-container">
+        <div class="slideshow-container">
+            <!-- Slides -->
+            <div class="slide active">
+                <img src="https://i.pinimg.com/736x/4c/61/55/4c615505c10fcc9cd286599df5b8b150.jpg" alt="Cà phê Việt Nam">
+            </div>
+            <div class="slide">
+                <img src="https://i.pinimg.com/736x/ad/58/3f/ad583f416a170b1c2f33e74777f2d778.jpg" alt="Đồ uống đá xay">
+            </div>
+            <div class="slide">
+                <img src="https://i.pinimg.com/736x/cc/1f/e7/cc1fe73c105b587e238a5721c9424b7d.jpg" alt="Combo đồ uống">
+            </div>
+        </div>
+        
+        <!-- Indicators -->
+        <div class="dots-container">
+            <span class="dot active" onclick="currentSlide(0)"></span>
+            <span class="dot" onclick="currentSlide(1)"></span>
+            <span class="dot" onclick="currentSlide(2)"></span>
+        </div>
+        
+        <!-- Overlay với text -->
+        <div class="overlay">
+            <h1>Trải Nghiệm Cà Phê Việt</h1>
+            <p>Tận hưởng dịch vụ tốt nhất từ chúng tôi</p>
+          
+        </div>
+    </div>
+
+    <!-- JavaScript cho slideshow -->
+    <script>
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+        
+        // Hàm hiển thị slide được chọn
+        function showSlide(n) {
+            // Reset slide hiện tại
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].classList.remove('active');
+                dots[i].classList.remove('active');
+            }
+            
+            // Hiển thị slide mới
+            slides[n].classList.add('active');
+            dots[n].classList.add('active');
+            
+            // Cập nhật slideIndex
+            slideIndex = n;
+        }
+        
+        // Hàm chuyển đến slide tiếp theo
+        function nextSlide() {
+            slideIndex++;
+            if (slideIndex >= slides.length) {
+                slideIndex = 0;
+            }
+            showSlide(slideIndex);
+        }
+        
+        // cho phép click vào dot để chuyển slide
+        function currentSlide(n) {
+            showSlide(n);
+        }
+        
+        // Tự động chuyển slide sau mỗi 4 giây
+        setInterval(nextSlide, 4000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,588 @@
+<html lang="vi">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoffeeManager - Quản lý Phục vụ</title>
+    <link rel="icon" href ="https://dynamic.design.com/asset/logo/a58dbcd0-c6c4-4efc-9344-8f1cb61e134f/logo-search-grid-2x?logoTemplateVersion=1&v=638817514014730000&text=coffee">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #FF9800;
+            --secondary-color: #F57C00;
+            --dark-color: #333;
+            --light-color: #f4f4f4;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+           background-color: var(--primary-color);
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 30px;
+        }
+        .logo img {
+    margin-right: 10px;
+    width: 50px;
+    height: 50px;}
+    /* Level 1 Menu */
+.Lv1 {
+    list-style: none;
+    display: flex;
+    padding: 0;
+    margin-right: 0px;
+    margin-left: -50px;
+}
+.icon1{
+    margin-bottom: -5px;
+}
+
+.Lv1 > li {
+    display: inline-block;
+    padding: 10px 10px;
+    position: relative;
+    cursor: pointer;
+    color: #fff;
+    margin-right: 10px;
+    margin-left: 40px;
+    font-weight: 500;
+    font-size: 15px;
+   
+}
+
+.Lv1 > li::before {
+    position: absolute;
+    content: "";
+    width: 0;
+    bottom: 0;
+    left: 0;
+    border-bottom: 3px solid rgb(250, 248, 248);
+    transition: 0.5s ease-in-out;
+}
+
+.Lv1 > li:hover::before {
+    width: 100%;
+}
+
+/* Level 2 Menu */
+.Lv2 {
+    font-size: 16px;
+    font-weight: normal;
+    position: absolute;
+    transition: 0.3s ease-in-out;
+    opacity: 0;
+    visibility: hidden;
+    top: 45px;
+    left: 0;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+ 
+    padding: 0;
+    min-width: 200px;
+    z-index: 100;
+}
+
+.Lv1 > li:hover > .Lv2 {
+    opacity: 1;
+    visibility: visible;
+}
+
+.Lv2 > li {
+    display: block;
+    background-color: #fff;
+    margin: 0;
+    padding: 12px 20px;
+    color: #333;
+    transition: 0.3s ease-in-out;
+    border-bottom: 1px solid #f0f0f0;
+    font-weight: 600;
+   
+}
+.Lv1>li>a{
+    text-decoration: none;
+    color: #fff;
+}
+
+.Lv2 > li:last-child {
+    border-bottom: none;
+}
+.Lv2>li>a{
+    text-decoration: none;
+    color: black;
+}
+.Lv2 > li:hover {
+    background-color: #fac104;
+    color: #fff;
+}
+/* Hero section */
+.hero-container {
+    position: relative;
+    height: calc(100vh - 60px);
+    overflow: hidden;
+}
+
+.hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.overlay h1 {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    font-weight: 800;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.overlay p {
+    font-size: 1.2rem;
+    max-width: 700px;
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+        
+        .container-fluid {
+            padding: 20px;
+        }
+        
+        /* Khu vực hiển thị bàn */
+        .table-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .table-card {
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+        }
+        
+        .table-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .table-free {
+            background-color: #fff;
+            border: 2px solid #28a745;
+        }
+        
+        .table-occupied {
+            background-color: #fff;
+            border: 2px solid #dc3545;
+        }
+        
+        .table-reserved {
+            background-color: #fff;
+            border: 2px solid #ffc107;
+        }
+        
+        .table-card h3 {
+            margin: 0;
+            color: var(--dark-color);
+            font-size: 18px;
+        }
+        
+        .table-status {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .table-free .table-status {
+            color: #28a745;
+        }
+        
+        .table-occupied .table-status {
+            color: #dc3545;
+        }
+        
+        .table-reserved .table-status {
+            color: #ffc107;
+        }
+        
+        .table-time {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #666;
+        }
+        
+        .table-price {
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        /* Sidebar cho danh mục */
+        .sidebar {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            height: calc(100vh - 120px);
+        }
+        
+        .category-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .category-item {
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .category-item:hover, .category-item.active {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+        
+        /* Thanh tìm kiếm và bộ lọc */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            flex-grow: 1;
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .filter-dropdown {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+        
+        /* Nút thao tác */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            color: #fff;
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: #fff;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        
+        /* Thanh thông tin nhanh */
+        .quick-info {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .info-card {
+            background-color: #fff;
+            border-left: 4px solid var(--primary-color);
+            border-radius: 5px;
+            padding: 15px;
+            flex: 1;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .info-card h3 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+            color: var(--dark-color);
+        }
+        
+        .info-card p {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .info-card.available {
+            border-left-color: var(--success-color);
+        }
+        
+        .info-card.occupied {
+            border-left-color: var(--danger-color);
+        }
+        
+        .info-card.reserved {
+            border-left-color: #ffc107;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .table-container {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .quick-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header với logo và menu -->
+   <div class="header">
+        <div class="logo">
+            <img src="https://dynamic.design.com/asset/logo/a58dbcd0-c6c4-4efc-9344-8f1cb61e134f/logo-search-grid-2x?logoTemplateVersion=1&v=638817514014730000&text=coffee" alt="Coffee icon">
+            CoffeeManager
+        </div>
+        <div class="nav-menu">
+            <ul class="Lv1">
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=2797&format=png" width="30"><a href="index.html">Trang chủ</a></li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=8287&format=png" width="30"> Cửa Hàng
+                    <ul class="Lv2">
+                         <li><a href="nhanvien.html">Quản lý nhân viên</a></li>
+                        <li><a href="khachhang.html">Quản lý khách hàng </a></li>
+                        <li><a href="datban.html">Màn hình Order</a></li>
+                    </ul>
+                </li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=7977&format=png" width="30"><a href="Thuchi.html"> Thu Chi </a> </li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=12428&format=png" width="30">Hàng Hóa 
+                    <ul class="Lv2">
+                        <li><a href="Thucdon.html">Sản Phẩm</a></li>
+                        <li><a href="danhmuc.html">Danh mục </a></li>
+                    </ul>
+                </li>
+                 <li><img class="icon1" src="https://img.icons8.com/?size=100&id=7819&format=png" width="30"><a href="Dangnhap.html"> Đăng xuất </a></li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar - Danh mục khu vực -->
+            <div class="col-md-3 col-lg-2">
+                <div class="sidebar">
+                    <h4>Khu vực</h4>
+                    <ul class="category-list">
+                        <li class="category-item active">Tất cả bàn</li>
+                        <li class="category-item">Tầng trệt</li>
+                        <li class="category-item">Tầng 1</li>
+                        <li class="category-item">Tầng 2</li>
+                        <li class="category-item">Khu vực sân vườn</li>
+                    </ul>
+                    
+                    <h4 class="mt-4">Trạng thái</h4>
+                    <ul class="category-list">
+                        <li class="category-item">Bàn trống</li>
+                        <li class="category-item">Bàn có khách</li>
+                        <li class="category-item">Bàn đã đặt</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Main content -->
+            <div class="col-md-9 col-lg-10">
+                <!-- Thanh tìm kiếm và bộ lọc -->
+                <div class="search-bar">
+                    <input type="text" class="search-input" placeholder="Tìm kiếm bàn...">
+                    <select class="filter-dropdown">
+                        <option value="all">Tất cả trạng thái</option>
+                        <option value="free">Bàn trống</option>
+                        <option value="occupied">Bàn có khách</option>
+                        <option value="reserved">Bàn đã đặt</option>
+                    </select>
+                    <button class="action-btn btn-primary">Làm mới</button>
+                </div>
+                
+                <!-- Thông tin nhanh -->
+                <div class="quick-info">
+                    <div class="info-card available">
+                        <h3>Bàn trống</h3>
+                        <p>10</p>
+                    </div>
+                    <div class="info-card occupied">
+                        <h3>Bàn có khách</h3>
+                        <p>0</p>
+                    </div>
+                    <div class="info-card reserved">
+                        <h3>Bàn đã đặt</h3>
+                        <p>0</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>Tổng bàn</h3>
+                        <p>10</p>
+                    </div>
+                </div>
+                
+                <!-- Danh sách bàn -->
+                <h4>Danh sách bàn</h4>
+                <div class="table-container">
+                    <!-- Tất cả bàn đều trống -->
+                    <div class="table-card table-free">
+                        <h3>Bàn 01</h3>
+                        <div class="table-status">Trống</div>
+                    </div>
+                    
+                    <div class="table-card table-free">
+                        <h3>Bàn 02</h3>
+                        <div class="table-status">Trống</div>
+                    </div>
+                    
+                    <div class="table-card table-free">
+                        <h3>Bàn 03</h3>
+                        <div class="table-status">Trống</div>
+                    </div>
+                    
+                    <div class="table-card table-free">
+                        <h3>Bàn 04</h3>
+                        <div class="table-status">Trống</div>
+                    </div>
+                    
+                    <div class="table-card table-free">
+                        <h3>Bàn 05</h3>
+                        <div class="table-status">Trống</div>
+                    </div>
+                    
+                    <div class="table-card table-free">
+                        <h3>Bàn 06</h3>
+                        <div class="table-status">Trống</div>
+                    </div>
+                    
+                    <div class="table-card table-free">
+                        <h3>Bàn 07</h3>
+                        <div class="table-status">Trống</div>
+                    </div>
+                    
+                    <div class="table-card table-free">
+                        <h3>Bàn 08</h3>
+                        <div class="table-status">Trống</div>
+                    </div>
+                    
+                    <div class="table-card table-free">
+                        <h3>Bàn 09</h3>
+                        <div class="table-status">Trống</div>
+                    </div>
+                    
+                    <div class="table-card table-free">
+                        <h3>Bàn 10</h3>
+                        <div class="table-status">Trống</div>
+                    </div>
+                </div>
+                
+                <!-- Nút thao tác -->
+                <div class="action-buttons">
+                    <button class="action-btn btn-primary">Thêm bàn mới</button>
+                    <button class="action-btn btn-success">Xuất báo cáo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // JavaScript để xử lý sự kiện click vào bàn
+        document.querySelectorAll('.table-card').forEach(table => {
+            table.addEventListener('click', function() {
+                const tableId = this.querySelector('h3').innerText;
+                const status = this.classList.contains('table-free') ? 'Trống' : 
+                               this.classList.contains('table-occupied') ? 'Có khách' : 'Đã đặt';
+                
+                // Nếu bàn trống, chuyển sang trang gọi món
+                if (this.classList.contains('table-free')) {
+                    // Chuyển hướng đến trang gọi món với thông tin bàn
+                    window.location.href = `goimon.html?table=${encodeURIComponent(tableId)}`;
+                } else {
+                    // Hiển thị thông tin bàn đang được sử dụng
+                    alert(`${tableId} - Trạng thái: ${status}`);
+                    // Có thể mở modal để xem chi tiết đơn hàng hoặc thanh toán
+                }
+            });
+        });
+        
+        // Xử lý sự kiện click vào danh mục
+        document.querySelectorAll('.category-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // Xóa class active khỏi tất cả các mục
+                document.querySelectorAll('.category-item').forEach(i => {
+                    i.classList.remove('active');
+                });
+                
+                // Thêm class active vào mục được chọn
+                this.classList.add('active');
+                
+                // Có thể thêm logic lọc bàn theo danh mục ở đây
+            });
+        });
+    </script>
+    
+</body>
+</html>

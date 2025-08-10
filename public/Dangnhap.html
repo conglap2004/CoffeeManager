@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://dynamic.design.com/asset/logo/a58dbcd0-c6c4-4efc-9344-8f1cb61e134f/logo-search-grid-2x?logoTemplateVersion=1&v=638817514014730000&text=coffee">
+    <title>Đăng Nhập - CoffeeManager</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .store-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1442512595331-e89e73853f31?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .LL-logo {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: white;
+            font-size: 1.8em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+        }
+
+        .login-container h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 15px 45px 15px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .login-button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            color: white;
+        }
+
+        .login-button.bg-blue-600 {
+            background-color: #667eea;
+        }
+
+        .login-button.bg-red-600 {
+            background-color: #e53e3e;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .login-button a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .forgot-password a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #fcc;
+            display: none;
+        }
+
+        .success-message {
+            background: #efe;
+            color: #3a3;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #cfc;
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .login-container {
+                padding: 25px;
+                margin: 10px;
+            }
+
+            .LL-logo {
+                position: static;
+                text-align: center;
+                margin-bottom: 20px;
+                color: #333;
+                text-shadow: none;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="store-background"></div>
+    <div class="LL-logo">
+        <h2>CoffeeManager</h2>
+    </div>
+
+    <div class="login-container">
+        <h2>ĐĂNG NHẬP PHẦN MỀM</h2>
+        
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <input type="text" placeholder="Email/Số điện thoại" class="login-input" autocomplete="off" name="username" id="username" required>
+                <i class="fas fa-user"></i>
+            </div>
+
+            <div class="form-group">
+                <input type="password" placeholder="Mật khẩu" class="login-input" autocomplete="off" name="password" id="password" required>
+                <i class="fas fa-lock"></i>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="login-button bg-blue-600">
+                    <i class="fas fa-sign-in-alt"></i> ĐĂNG NHẬP
+                </button>
+                <a href="Dangki.html" class="login-button bg-red-600">
+                    <i class="fas fa-user-plus"></i> ĐĂNG KÝ
+                </a>
+            </div>
+        </form>
+        
+        <div class="forgot-password">
+            <a href="#" onclick="showForgotPassword()">Quên mật khẩu?</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('loginForm');
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+        successMessage.style.display = 'none';
+    }
+
+    function showSuccess(message) {
+        successMessage.textContent = message;
+        successMessage.style.display = 'block';
+        errorMessage.style.display = 'none';
+    }
+
+    function hideMessages() {
+        errorMessage.style.display = 'none';
+        successMessage.style.display = 'none';
+    }
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideMessages();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showError('Vui lòng điền đầy đủ thông tin');
+                return;
+            }
+
+            try {
+                console.log('🔄 Đang gửi request đăng nhập...');
+                
+                const response = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+                console.log('📤 Response:', data);
+
+                if (data.success) {
+                    showSuccess(data.message);
+                    
+                    // Lưu thông tin user vào localStorage (tùy chọn)
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    // Chuyển hướng sau 1.5 giây
+                    setTimeout(() => {
+                        window.location.href = 'index.html'; // Thay đổi theo trang đích của bạn
+                    }, 1500);
+                } else {
+                    showError(data.message || 'Đăng nhập thất bại');
+                }
+
+            } catch (error) {
+                console.error(' Lỗi kết nối:', error);
+                showError('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.');
+            }
+        });
+    }
+});
+
+function showForgotPassword() {
+    alert('Tính năng quên mật khẩu sẽ được phát triển trong phiên bản tiếp theo!');
+}
+    </script>
+    </script>
+</body>
+</html>

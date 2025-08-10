@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+   <link rel="icon" href ="https://dynamic.design.com/asset/logo/a58dbcd0-c6c4-4efc-9344-8f1cb61e134f/logo-search-grid-2x?logoTemplateVersion=1&v=638817514014730000&text=coffee">
+  <title>Quản lý danh mục - Coffee Manager</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+.header {
+    background-color: #fc9a22;
+    height: 50px;
+    padding: 15px 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    font-weight: bold;
+    font-size: 40px;
+}
+
+.logo img {
+    margin-right: 10px;
+    width: 50px;
+    height: 50px;
+}
+
+.nav-menu {
+    width: 800px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.Lv1 {
+    list-style: none;
+    display: flex;
+    padding: 0;
+    margin-right: 0px;
+    margin-left: -50px;
+}
+.icon1{
+    margin-bottom: -8px;
+}
+
+.Lv1 > li {
+    display: inline-block;
+    padding: 10px 10px;
+    position: relative;
+    cursor: pointer;
+    color: #fff;
+    margin-right: 10px;
+    margin-left: 40px;
+    font-weight: 500;
+    font-size: 15px;
+}
+
+.Lv1 > li::before {
+    position: absolute;
+    content: "";
+    width: 0;
+    bottom: 0;
+    left: 0;
+    border-bottom: 3px solid rgb(250, 248, 248);
+    transition: 0.5s ease-in-out;
+}
+
+.Lv1 > li:hover::before {
+    width: 100%;
+}
+
+.Lv2 {
+    font-size: 16px;
+    font-weight: normal;
+    position: absolute;
+    transition: 0.3s ease-in-out;
+    opacity: 0;
+    visibility: hidden;
+    top: 45px;
+    left: 0;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    padding: 0;
+    min-width: 200px;
+    z-index: 100;
+}
+
+.Lv1 > li:hover > .Lv2 {
+    opacity: 1;
+    visibility: visible;
+}
+
+.Lv2 > li {
+    display: block;
+    background-color: #fff;
+    margin: 0;
+    padding: 12px 20px;
+    color: #333;
+    transition: 0.3s ease-in-out;
+    border-bottom: 1px solid #f0f0f0;
+    font-weight: 600;
+}
+
+.Lv2 > li:last-child {
+    border-bottom: none;
+}
+.Lv2>li>a{
+    text-decoration: none;
+    color: black;
+}
+.Lv2 > li:hover {
+    background-color: #fac104;
+    color: #fff;
+}
+
+.Lv1>li>a{
+    text-decoration: none;
+    color: #fff;
+}
+
+    h1 {
+      background-color: #f8d7da;
+      color: #ffc107;
+      padding: 15px;
+      text-align: center;
+      margin: 0;
+    }
+
+    .container {
+      display: flex;
+      padding: 20px;
+    }
+
+    .left, .right {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .left {
+      border-right: 1px solid #ccc;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background-color: #f2f2f2;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: inline-block;
+      width: 100px;
+    }
+
+    input[type="text"] {
+      width: 200px;
+      padding: 6px;
+    }
+
+    button {
+      padding: 6px 12px;
+      margin-right: 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color: white;
+    }
+
+    .add-btn { background-color: #28a745; }
+    .edit-btn { background-color: #ffc107; color: black; }
+    .delete-btn { background-color: #dc3545; }
+    
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+    
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    
+    .selected-row {
+      background-color: #007bff !important;
+      color: white !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+        <div class="logo">
+            <img src="https://dynamic.design.com/asset/logo/a58dbcd0-c6c4-4efc-9344-8f1cb61e134f/logo-search-grid-2x?logoTemplateVersion=1&v=638817514014730000&text=coffee" alt="Coffee icon">
+            CoffeeManager
+        </div>
+        <div class="nav-menu">
+            <ul class="Lv1">
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=2797&format=png" width="30"><a href="index.html"> Trang chủ</a></li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=8287&format=png" width="30"> Cửa Hàng
+                    <ul class="Lv2">
+                         <li><a href="nhanvien.html">Quản lý nhân viên</a></li>
+                        <li><a href="khachhang.html">Quản lý khách hàng </a></li>
+                        <li><a href="datban.html">Màn hình Order</a></li>
+                    </ul>
+                </li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=7977&format=png" width="30"><a href="Thuchi.html"> Thu Chi</a> </li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=12428&format=png" width="30">Hàng Hóa 
+                    <ul class="Lv2">
+                        <li><a href="Thucdon.html">Sản Phẩm</a></li>
+                        <li><a href="danhmuc.html">Danh mục </a> </li>
+                    </ul>
+                </li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=7819&format=png" width="30"><a href="Dangnhap.html">Đăng xuất </a></li>
+            </ul>
+        </div>
+    </div>
+
+  <div id="messageContainer"></div>
+
+  <div class="container">
+    <!-- Bảng danh mục -->
+    <div class="left">
+      <table id="categoryTable">
+        <thead>
+          <tr>
+            <th>Mã Danh Mục</th>
+            <th>Tên Danh Mục</th>
+          </tr>
+        </thead>
+        <tbody id="categoryTableBody">
+          <tr>
+            <td colspan="2" class="loading">Đang tải dữ liệu...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Form nhập liệu -->
+    <div class="right">
+      <div class="form-group">
+        <label for="ma">Mã danh mục:</label>
+        <input type="text" id="ma" placeholder="Nhập mã danh mục">
+      </div>
+      <div class="form-group">
+        <label for="ten">Tên danh mục:</label>
+        <input type="text" id="ten" placeholder="Nhập tên danh mục">
+      </div>
+      <button class="add-btn" onclick="addCategory()">Thêm</button>
+      <button class="edit-btn" onclick="editCategory()">Sửa</button>
+      <button class="delete-btn" onclick="deleteCategory()">Xóa</button>
+      <div class="form-group">
+        <input type="text" id="searchInput" placeholder="Tìm kiếm danh mục..." style="width: 200px; margin-top: 20px;">
+        <button onclick="searchCategories()" style="background-color: #17a2b8;">Tìm kiếm</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let selectedRow = null;
+    let selectedCategoryId = null;
+    let categories = [];
+
+    // API URL
+    const API_BASE = '/api/categories';
+
+    // Hiển thị thông báo
+    function showMessage(message, type = 'success') {
+      const container = document.getElementById('messageContainer');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = type;
+      messageDiv.textContent = message;
+      container.appendChild(messageDiv);
+      
+      setTimeout(() => {
+        container.removeChild(messageDiv);
+      }, 3000);
+    }
+
+    // Tải danh sách danh mục
+    async function loadCategories() {
+      try {
+        const response = await fetch(`http://localhost:3000/api/categories/all`);
+        const result = await response.json();
+        
+        if (result.success) {
+          categories = result.data;
+          displayCategories(categories);
+        } else {
+          showMessage('Lỗi tải danh mục: ' + result.message, 'error');
+        }
+      } catch (error) {
+        showMessage('Lỗi kết nối server: ' + error.message, 'error');
+        console.error('Error loading categories:', error);
+      }
+    }
+
+    // Hiển thị danh mục trong bảng
+    function displayCategories(categoriesData) {
+      const tbody = document.getElementById('categoryTableBody');
+      tbody.innerHTML = '';
+
+      if (categoriesData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="2" style="text-align: center;">Không có danh mục nào</td></tr>';
+        return;
+      }
+
+      categoriesData.forEach(category => {
+        const row = tbody.insertRow();
+        row.dataset.id = category._id;
+        row.innerHTML = `
+          <td>${category.maDanhMuc}</td>
+          <td>${category.tenDanhMuc}</td>
+        `;
+        row.onclick = () => selectRow(row, category);
+      });
+    }
+
+    // Chọn hàng
+    function selectRow(row, category) {
+      // Bỏ chọn hàng cũ
+      if (selectedRow) {
+        selectedRow.classList.remove('selected-row');
+      }
+      
+      selectedRow = row;
+      selectedCategoryId = category._id;
+      row.classList.add('selected-row');
+      
+      document.getElementById("ma").value = category.maDanhMuc;
+      document.getElementById("ten").value = category.tenDanhMuc;
+    }
+
+    // Thêm danh mục
+    async function addCategory() {
+      const ma = document.getElementById("ma").value.trim();
+      const ten = document.getElementById("ten").value.trim();
+      
+      if (ma === "" || ten === "") {
+        showMessage("Vui lòng nhập đầy đủ thông tin.", 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:3000/api/categories/add`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            maDanhMuc: ma,
+            tenDanhMuc: ten
+          })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          showMessage(result.message);
+          clearForm();
+          loadCategories();
+        } else {
+          showMessage('Lỗi: ' + result.message, 'error');
+        }
+      } catch (error) {
+        showMessage('Lỗi kết nối server: ' + error.message, 'error');
+        console.error('Error adding category:', error);
+      }
+    }
+
+    // Sửa danh mục
+    async function editCategory() {
+      if (!selectedCategoryId) {
+        showMessage("Vui lòng chọn một danh mục để sửa.", 'error');
+        return;
+      }
+
+      const ma = document.getElementById("ma").value.trim();
+      const ten = document.getElementById("ten").value.trim();
+      
+      if (ma === "" || ten === "") {
+        showMessage("Vui lòng nhập đầy đủ thông tin.", 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:3000/api/categories/update/${selectedCategoryId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            maDanhMuc: ma,
+            tenDanhMuc: ten
+          })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          showMessage(result.message);
+          clearForm();
+          loadCategories();
+        } else {
+          showMessage('Lỗi: ' + result.message, 'error');
+        }
+      } catch (error) {
+        showMessage('Lỗi kết nối server: ' + error.message, 'error');
+        console.error('Error updating category:', error);
+      }
+    }
+
+    // Xóa danh mục
+    async function deleteCategory() {
+      if (!selectedCategoryId) {
+        showMessage("Vui lòng chọn một danh mục để xóa.", 'error');
+        return;
+      }
+
+      if (!confirm("Bạn có chắc chắn muốn xóa danh mục này?")) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:3000/api/categories/delete/${selectedCategoryId}`, {
+          method: 'DELETE'
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          showMessage(result.message);
+          clearForm();
+          loadCategories();
+        } else {
+          showMessage('Lỗi: ' + result.message, 'error');
+        }
+      } catch (error) {
+        showMessage('Lỗi kết nối server: ' + error.message, 'error');
+        console.error('Error deleting category:', error);
+      }
+    }
+
+    // Tìm kiếm danh mục
+    async function searchCategories() {
+      const keyword = document.getElementById('searchInput').value.trim();
+      
+      if (keyword === '') {
+        loadCategories();
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:3000/api/categories /search/${encodeURIComponent(keyword)}`);
+        const result = await response.json();
+        
+        if (result.success) {
+          displayCategories(result.data);
+          showMessage(`Tìm thấy ${result.count} kết quả`);
+        } else {
+          showMessage('Lỗi tìm kiếm: ' + result.message, 'error');
+        }
+      } catch (error) {
+        showMessage('Lỗi kết nối server: ' + error.message, 'error');
+        console.error('Error searching categories:', error);
+      }
+    }
+
+    // Xóa form
+    function clearForm() {
+      document.getElementById("ma").value = "";
+      document.getElementById("ten").value = "";
+      if (selectedRow) {
+        selectedRow.classList.remove('selected-row');
+      }
+      selectedRow = null;
+      selectedCategoryId = null;
+    }
+
+    // Tìm kiếm khi nhấn Enter
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        searchCategories();
+      }
+    });
+
+    // Tải dữ liệu khi trang load
+    document.addEventListener('DOMContentLoaded', function() {
+      loadCategories();
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Thu Chi - CoffeeManager</title>
+    <link href="main.css" rel="stylesheet">
+    <link rel="icon" href ="https://dynamic.design.com/asset/logo/a58dbcd0-c6c4-4efc-9344-8f1cb61e134f/logo-search-grid-2x?logoTemplateVersion=1&v=638817514014730000&text=coffee">
+  
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="https://dynamic.design.com/asset/logo/a58dbcd0-c6c4-4efc-9344-8f1cb61e134f/logo-search-grid-2x?logoTemplateVersion=1&v=638817514014730000&text=coffee" alt="Coffee icon">
+            CoffeeManager
+        </div>
+        <div class="nav-menu">
+            <ul class="Lv1">
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=2797&format=png" width="30"><a href="index.html"> Trang chủ</a></li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=8287&format=png" width="30"> Cửa Hàng
+                    <ul class="Lv2">
+                         <li><a href="nhanvien.html">Quản lý nhân viên</a></li>
+                        <li><a href="khachhang.html">Quản lý khách hàng </a></li>
+                        <li><a href="datban.html">Màn hình Order</a></li>
+                    </ul>
+                </li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=7977&format=png" width="30"><a href="Thuchi.html"> Thu Chi</a> </li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=12428&format=png" width="30">Hàng Hóa 
+                    <ul class="Lv2">
+                        <li><a href="Thucdon.html">Sản Phẩm</a></li>
+                        <li><a href="danhmuc.html">Danh mục </a> </li>
+                    </ul>
+                </li>
+                <li><img class="icon1" src="https://img.icons8.com/?size=100&id=7819&format=png" width="30"><a href="Dangnhap.html">Đăng xuất </a></li>
+
+
+            </ul>
+        </div>
+    </div>
+    
+
+        <!-- Thống kê tổng quan -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div>Tổng Thu Nhập</div>
+                <div class="stat-number income" id="totalIncome">0₫</div>
+            </div>
+            <div class="stat-card">
+                <div>Tổng Chi Phí</div>
+                <div class="stat-number expense" id="totalExpense">0₫</div>
+            </div>
+            <div class="stat-card">
+                <div>Lợi Nhuận</div>
+                <div class="stat-number profit" id="totalProfit">0₫</div>
+            </div>
+            <div class="stat-card">
+                <div>Giao Dịch Hôm Nay</div>
+                <div class="stat-number" id="todayTransactions">0</div>
+            </div>
+        </div>
+
+        <!-- Dashboard chính -->
+        <div class="dashboard">
+            <!-- Form thêm giao dịch -->
+            <div class="card">
+                <h3> Thêm Giao Dịch Mới</h3>
+                <form id="transactionForm">
+                    <div class="form-group">
+                        <label for="type">Loại giao dịch:</label>
+                        <select id="type" required>
+                            <option value="">Chọn loại giao dịch</option>
+                            <option value="income">Thu nhập</option>
+                            <option value="expense">Chi phí</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">Danh mục:</label>
+                        <select id="category" required>
+                            <option value="">Chọn danh mục</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="amount">Số tiền (VNĐ):</label>
+                        <input type="number" id="amount" min="0" required placeholder="Nhập số tiền">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Mô tả:</label>
+                        <textarea id="description" rows="3" placeholder="Mô tả chi tiết (không bắt buộc)"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="date">Ngày:</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary"> Lưu Giao Dịch</button>
+                </form>
+            </div>
+
+            <!-- Báo cáo nhanh -->
+            <div class="card">
+                <h3> Báo Cáo Nhanh</h3>
+                <div class="form-group">
+                    <label for="reportPeriod">Chọn kỳ báo cáo:</label>
+                    <select id="reportPeriod">
+                        <option value="today">Hôm nay</option>
+                        <option value="week">Tuần này</option>
+                        <option value="month">Tháng này</option>
+                        <option value="year">Năm này</option>
+                    </select>
+                </div>
+                <button class="btn btn-success" onclick="generateReport()"> Tạo Báo Cáo</button>
+                <div id="reportResult" style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 5px; display: none;">
+                    <h4>Kết quả báo cáo:</h4>
+                    <div id="reportContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bộ lọc giao dịch -->
+        <div class="filter-section">
+            <h3> Lọc Giao Dịch</h3>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="filterType">Loại:</label>
+                    <select id="filterType">
+                        <option value="">Tất cả</option>
+                        <option value="income">Thu nhập</option>
+                        <option value="expense">Chi phí</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterCategory">Danh mục:</label>
+                    <select id="filterCategory">
+                        <option value="">Tất cả danh mục</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterFromDate">Từ ngày:</label>
+                    <input type="date" id="filterFromDate">
+                </div>
+                <div class="filter-group">
+                    <label for="filterToDate">Đến ngày:</label>
+                    <input type="date" id="filterToDate">
+                </div>
+                <div class="filter-group">
+                    <button class="btn btn-primary" onclick="applyFilters()">Áp dụng</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danh sách giao dịch -->
+        <div class="transactions">
+            <h3> Lịch Sử Giao Dịch</h3>
+            <div id="transactionsList">
+                <p style="text-align: center; color: #666; padding: 20px;">Chưa có giao dịch nào. Hãy thêm giao dịch đầu tiên!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dữ liệu mẫu
+         const categories = {
+            income: ['Bán cà phê', 'Dịch vụ khác', 'Khuyến mãi', 'Đối tác'],
+            expense: ['Nguyên liệu cà phê', 'Tiền thuê mặt bằng', 'Điện nước', 'Lương nhân viên', 'Marketing', 'Thiết bị', 'Vệ sinh', 'Khác']
+        };
+
+        let transactions = [];
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            await fetchTransactions();
+            setupToday();
+            updateCategoryOptions();
+            updateFilterCategories();
+            displayTransactions();
+            updateStats();
+            document.getElementById('type').addEventListener('change', updateCategoryOptions);
+            document.getElementById('transactionForm').addEventListener('submit', addTransaction);
+        });
+
+        async function fetchTransactions() {
+    try {
+        const response = await fetch('http://localhost:3000/api/transactions/all');
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+        }
+        transactions = await response.json();
+    } catch (err) {
+        console.error(' Lỗi khi tải giao dịch:', err); // log chi tiết
+        alert('Lỗi khi tải giao dịch! Vui lòng kiểm tra server hoặc kết nối.');
+        transactions = [];
+    }
+}
+
+        async function addTransaction(e) {
+            e.preventDefault();
+            const transaction = {
+                type: document.getElementById('type').value,
+                category: document.getElementById('category').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                description: document.getElementById('description').value,
+                date: document.getElementById('date').value
+            };
+
+            try {
+               await fetch('/api/transactions/add', {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(transaction)
+});
+                
+                await fetchTransactions();
+                displayTransactions();
+                updateStats();
+                document.getElementById('transactionForm').reset();
+                setupToday();
+                updateCategoryOptions();
+            } catch (err) {
+                alert('Lỗi khi lưu giao dịch!');
+            }
+        }
+
+        // Hiển thị danh sách giao dịch
+        function displayTransactions(filteredTransactions = null) {
+    const transactionsList = document.getElementById('transactionsList');
+    const displayTransactions = filteredTransactions || transactions;
+    
+    if (displayTransactions.length === 0) {
+        transactionsList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Không có giao dịch nào.</p>';
+        return;
+    }
+
+    transactionsList.innerHTML = displayTransactions.map(transaction => `
+        <div class="transaction-item">
+            <div class="transaction-info">
+                <div class="transaction-type ${transaction.type}">
+                    ${transaction.type === 'income' ? '💰' : '💸'} ${transaction.category}
+                </div>
+                <div class="transaction-description">
+                    ${transaction.description || 'Không có mô tả'}
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div class="transaction-amount ${transaction.type}">
+                    ${transaction.type === 'income' ? '+' : '-'}${formatMoney(transaction.amount)}
+                </div>
+                <div class="transaction-date">${formatDate(transaction.date)}</div>
+            </div>
+            <button class="delete-btn" onclick="deleteTransaction('${transaction._id}')">Xóa</button>
+        </div>
+    `).join('');
+}
+
+        // Xóa giao dịch
+        async function deleteTransaction(id) {
+    if (confirm('Bạn có chắc chắn muốn xóa giao dịch này?')) {
+        try {
+            const response = await fetch(`http://localhost:3000/api/transactions/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            
+            if (result.success) {
+                // Tải lại danh sách giao dịch từ server
+                await fetchTransactions();
+                displayTransactions();
+                updateStats();
+                alert('Xóa giao dịch thành công!');
+            } else {
+                alert('Lỗi khi xóa giao dịch: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Lỗi khi xóa giao dịch:', error);
+            alert('Lỗi khi xóa giao dịch! Vui lòng thử lại.');
+        }
+    }
+}
+
+
+        // Cập nhật thống kê
+        function updateStats() {
+            const totalIncome = transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const totalExpense = transactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const totalProfit = totalIncome - totalExpense;
+            
+            const today = new Date().toISOString().split('T')[0];
+            const todayTransactions = transactions.filter(t => t.date === today).length;
+
+            document.getElementById('totalIncome').textContent = formatMoney(totalIncome);
+            document.getElementById('totalExpense').textContent = formatMoney(totalExpense);
+            document.getElementById('totalProfit').textContent = formatMoney(totalProfit);
+            document.getElementById('todayTransactions').textContent = todayTransactions;
+        }
+
+        // Áp dụng bộ lọc
+        function applyFilters() {
+            const filterType = document.getElementById('filterType').value;
+            const filterCategory = document.getElementById('filterCategory').value;
+            const filterFromDate = document.getElementById('filterFromDate').value;
+            const filterToDate = document.getElementById('filterToDate').value;
+
+            let filteredTransactions = transactions;
+
+            if (filterType) {
+                filteredTransactions = filteredTransactions.filter(t => t.type === filterType);
+            }
+
+            if (filterCategory) {
+                filteredTransactions = filteredTransactions.filter(t => t.category === filterCategory);
+            }
+
+            if (filterFromDate) {
+                filteredTransactions = filteredTransactions.filter(t => t.date >= filterFromDate);
+            }
+
+            if (filterToDate) {
+                filteredTransactions = filteredTransactions.filter(t => t.date <= filterToDate);
+            }
+
+            displayTransactions(filteredTransactions);
+        }
+
+        // Tạo báo cáo
+        function generateReport() {
+            const period = document.getElementById('reportPeriod').value;
+            let filteredTransactions = [];
+            let periodText = '';
+
+            const today = new Date();
+            
+            switch(period) {
+                case 'today':
+                    const todayStr = today.toISOString().split('T')[0];
+                    filteredTransactions = transactions.filter(t => t.date === todayStr);
+                    periodText = 'hôm nay';
+                    break;
+                    
+                case 'week':
+                    const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    const weekAgoStr = weekAgo.toISOString().split('T')[0];
+                    filteredTransactions = transactions.filter(t => t.date >= weekAgoStr);
+                    periodText = 'tuần này';
+                    break;
+                    
+                case 'month':
+                    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                    const monthStartStr = monthStart.toISOString().split('T')[0];
+                    filteredTransactions = transactions.filter(t => t.date >= monthStartStr);
+                    periodText = 'tháng này';
+                    break;
+                    
+                case 'year':
+                    const yearStart = new Date(today.getFullYear(), 0, 1);
+                    const yearStartStr = yearStart.toISOString().split('T')[0];
+                    filteredTransactions = transactions.filter(t => t.date >= yearStartStr);
+                    periodText = 'năm này';
+                    break;
+            }
+
+            const income = filteredTransactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const expense = filteredTransactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const profit = income - expense;
+
+            document.getElementById('reportResult').style.display = 'block';
+            document.getElementById('reportContent').innerHTML = `
+                <p><strong>Báo cáo ${periodText}:</strong></p>
+                <p> Tổng thu nhập: <span class="income">${formatMoney(income)}</span></p>
+                <p> Tổng chi phí: <span class="expense">${formatMoney(expense)}</span></p>
+                <p> Lợi nhuận: <span class="${profit >= 0 ? 'income' : 'expense'}">${formatMoney(profit)}</span></p>
+                <p> Số giao dịch: ${filteredTransactions.length}</p>
+            `;
+        }
+
+        
+
+        // Format tiền tệ
+        function formatMoney(amount) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(amount);
+        }
+
+        // Format ngày tháng
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('vi-VN');
+        }
+        function setupToday() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date').value = today;
+}
+
+function updateCategoryOptions() {
+    const type = document.getElementById('type').value;
+    const categorySelect = document.getElementById('category');
+    
+    categorySelect.innerHTML = '<option value="">Chọn danh mục</option>';
+    
+    if (type && categories[type]) {
+        categories[type].forEach(cat => {
+            categorySelect.innerHTML += `<option value="${cat}">${cat}</option>`;
+        });
+    }
+}
+
+function updateFilterCategories() {
+    const filterCategory = document.getElementById('filterCategory');
+    const allCategories = [...categories.income, ...categories.expense];
+    
+    filterCategory.innerHTML = '<option value="">Tất cả danh mục</option>';
+    allCategories.forEach(cat => {
+        filterCategory.innerHTML += `<option value="${cat}">${cat}</option>`;
+    });
+}
+fetch('http://localhost:3000/api/transactions/all')
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error('Lỗi:', error));
+    </script>
+</body>
+</html>
