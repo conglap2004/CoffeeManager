@@ -389,6 +389,7 @@
                 if (response.ok) {
                     currentOrder = [];
                     renderOrder();
+                    alert(' Thanh toán thành công!');
                     goBack();
                 } else {
                     console.error('Lỗi khi lưu giao dịch');
@@ -398,10 +399,7 @@
             }
         }
         
-        // Go back to table management
-        function goBack() {
-            window.history.back();
-        }
+        
         
         // Handle keyboard shortcuts
         document.addEventListener('keydown', function(e) {
