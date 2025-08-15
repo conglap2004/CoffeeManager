@@ -4,30 +4,46 @@ const bcrypt = require('bcryptjs');
 const cors = require('cors');
 const path = require('path');
 const Transaction = require('./models/Transaction'); // Import model
+require('dotenv').config();
 
 const app = express();
-const port = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware cơ bản
+const FRONTEND_URL = process.env.FRONTEND_URL || '*';
 app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin: FRONTEND_URL,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ==== ENV & DB SETUP ====
+const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
+const MONGODB_DB = process.env.MONGODB_DB || process.env.MONGO_DB;
+
+if (!MONGODB_URI) {
+    console.error('MONGODB_URI/MONGO_URI is not set');
+    process.exit(1);
+}
+
 // Serve static files từ thư mục hiện tại
 app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Kết nối MongoDB với error handling
-mongoose.connect('mongodb://localhost:27017/coffeemanager')
-.then(() => console.log(' MongoDB kết nối thành công'))
+const mongoConnectOptions = {};
+if (MONGODB_DB) {
+    mongoConnectOptions.dbName = MONGODB_DB;
+}
+
+mongoose.connect(MONGODB_URI, mongoConnectOptions)
+.then(() => console.log('MongoDB connected'))
 .catch(err => {
-    console.error('❌ Lỗi MongoDB:', err.message);
-    console.log('💡 Hướng dẫn: Đảm bảo MongoDB đang chạy bằng lệnh: mongod');
+    console.error('❌ MongoDB connection error:', err.message);
+    process.exit(1);
 });
 
 // ==== SCHEMAS ====
@@ -43,9 +59,12 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 
 // ==== ROUTES ====
+// Health checks
+app.get('/healthz', (req, res) => res.send('ok'));
+app.get('/api/ping', (req, res) => res.json({ ok: true }));
 // Trang chính
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'Dangnhap.html'));
+    res.sendFile(path.join(__dirname, 'public', 'Dangnhap.html'));
 });
 // Route backup cho đăng nhập
 app.get('/login', (req, res) => {
@@ -53,7 +72,7 @@ app.get('/login', (req, res) => {
 });
 
 app.get('/Dangnhap.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'Dangnhap.html'));
+    res.sendFile(path.join(__dirname, 'public', 'Dangnhap.html'));
 });
 
 // Kiểm tra server
@@ -162,11 +181,11 @@ app.delete('/api/transactions/:id', async (req, res) => {
 
 // Route cho các trang HTML khác
 app.get('/Thuchi.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'Thuchi.html'));
+    res.sendFile(path.join(__dirname, 'public', 'Thuchi.html'));
 });
 
 app.get('/goimon.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'goimon.html'));
+    res.sendFile(path.join(__dirname, 'public', 'goimon.html'));
 });
 
 // ==== IMPORT MODELS ====
@@ -194,38 +213,39 @@ app.use('/api/products', productsRouter);
 
 // Route cho các trang HTML
 app.get('/nhanvien.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'nhanvien.html'));
+    res.sendFile(path.join(__dirname, 'public', 'nhanvien.html'));
 });
 
 app.get('/khachhang.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'khachhang.html'));
+    res.sendFile(path.join(__dirname, 'public', 'khachhang.html'));
 });
 
 app.get('/danhmuc.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'danhmuc.html'));
+    res.sendFile(path.join(__dirname, 'public', 'danhmuc.html'));
 });
 
 // Route cho trang sản phẩm
 app.get('/Thucdon.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'Thucdon.html'));
+    res.sendFile(path.join(__dirname, 'public', 'Thucdon.html'));
 });
 
 // ==== SERVER START ====
-app.listen(port, () => {
-    console.log(` Server chạy tại: http://localhost:${port}`);
+app.listen(PORT, () => {
+    console.log(` Server listening on port ${PORT}`);
     console.log(' Static files từ:', __dirname);
-    console.log(' Test API: http://localhost:3000/test');
-    console.log(' API giao dịch: http://localhost:3000/api/transactions/all');
-    console.log(' API danh mục: http://localhost:3000/api/categories/all');
-    console.log(' API sản phẩm: http://localhost:3000/api/products/all');
+    console.log(` Health: http://localhost:${PORT}/healthz`);
+    console.log(` Ping: http://localhost:${PORT}/api/ping`);
+    console.log(` API giao dịch: http://localhost:${PORT}/api/transactions/all`);
+    console.log(` API danh mục: http://localhost:${PORT}/api/categories/all`);
+    console.log(` API sản phẩm: http://localhost:${PORT}/api/products/all`);
 });
 
 // Handle unhandled errors
 process.on('unhandledRejection', err => {
-    console.error('❌ Unhandled Rejection:', err.message);
+    console.error(' Unhandled Rejection:', err.message);
 });
 
 process.on('uncaughtException', err => {
-    console.error('❌ Uncaught Exception:', err.message);
+    console.error(' Uncaught Exception:', err.message);
     process.exit(1);
 });

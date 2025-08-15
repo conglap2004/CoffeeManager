@@ -21,7 +21,7 @@
                     <ul class="Lv2">
                          <li><a href="nhanvien.html">Quản lý nhân viên</a></li>
                         <li><a href="khachhang.html">Quản lý khách hàng </a></li>
-                        <li><a href="datban.html">Màn hình Order</a></li>
+                        <li><a href="goimon.html">Màn hình Order</a></li>
                     </ul>
                 </li>
                 <li><img class="icon1" src="https://img.icons8.com/?size=100&id=7977&format=png" width="30"><a href="Thuchi.html"> Thu Chi</a> </li>
@@ -162,14 +162,13 @@
     </div>
 
     <script>
-        // Dữ liệu mẫu
-         const categories = {
+        const categories = {
             income: ['Bán cà phê', 'Dịch vụ khác', 'Khuyến mãi', 'Đối tác'],
             expense: ['Nguyên liệu cà phê', 'Tiền thuê mặt bằng', 'Điện nước', 'Lương nhân viên', 'Marketing', 'Thiết bị', 'Vệ sinh', 'Khác']
         };
-
+        
         let transactions = [];
-
+        
         document.addEventListener('DOMContentLoaded', async function () {
             await fetchTransactions();
             setupToday();
@@ -180,21 +179,24 @@
             document.getElementById('type').addEventListener('change', updateCategoryOptions);
             document.getElementById('transactionForm').addEventListener('submit', addTransaction);
         });
-
+        
+        // Lấy danh sách giao dịch
         async function fetchTransactions() {
-    try {
-        const response = await fetch('http://localhost:3000/api/transactions/all');
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+            try {
+                const response = await fetch('http://localhost:3000/api/transactions/all');
+                if (!response.ok) throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+                const result = await response.json();
+        
+                // Luôn gán mảng giao dịch
+                transactions = Array.isArray(result) ? result : (result.data || []);
+            } catch (err) {
+                console.error('Lỗi khi tải giao dịch:', err);
+                alert('Lỗi khi tải giao dịch! Vui lòng kiểm tra server hoặc kết nối.');
+                transactions = [];
+            }
         }
-        transactions = await response.json();
-    } catch (err) {
-        console.error(' Lỗi khi tải giao dịch:', err); // log chi tiết
-        alert('Lỗi khi tải giao dịch! Vui lòng kiểm tra server hoặc kết nối.');
-        transactions = [];
-    }
-}
-
+        
+        // Thêm giao dịch mới
         async function addTransaction(e) {
             e.preventDefault();
             const transaction = {
@@ -204,14 +206,19 @@
                 description: document.getElementById('description').value,
                 date: document.getElementById('date').value
             };
-
+        
             try {
-               await fetch('/api/transactions/add', {
-             method: 'POST',
-             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(transaction)
-});
-                
+                const response = await fetch('http://localhost:3000/api/transactions/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(transaction)
+                });
+        
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Không thể thêm giao dịch');
+                }
+        
                 await fetchTransactions();
                 displayTransactions();
                 updateStats();
@@ -219,130 +226,85 @@
                 setupToday();
                 updateCategoryOptions();
             } catch (err) {
-                alert('Lỗi khi lưu giao dịch!');
+                console.error('Lỗi khi lưu giao dịch:', err);
+                alert('Lỗi khi lưu giao dịch: ' + err.message);
             }
         }
-
+        
         // Hiển thị danh sách giao dịch
         function displayTransactions(filteredTransactions = null) {
-    const transactionsList = document.getElementById('transactionsList');
-    const displayTransactions = filteredTransactions || transactions;
-    
-    if (displayTransactions.length === 0) {
-        transactionsList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Không có giao dịch nào.</p>';
-        return;
-    }
-
-    transactionsList.innerHTML = displayTransactions.map(transaction => `
-        <div class="transaction-item">
-            <div class="transaction-info">
-                <div class="transaction-type ${transaction.type}">
-                    ${transaction.type === 'income' ? '💰' : '💸'} ${transaction.category}
+            const transactionsList = document.getElementById('transactionsList');
+            const displayList = filteredTransactions || transactions;
+            
+            if (displayList.length === 0) {
+                transactionsList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Không có giao dịch nào.</p>';
+                return;
+            }
+        
+            transactionsList.innerHTML = displayList.map(transaction => `
+                <div class="transaction-item">
+                    <div class="transaction-info">
+                        <div class="transaction-type ${transaction.type}">
+                            ${transaction.type === 'income' ? '💰' : '💸'} ${transaction.category}
+                        </div>
+                        <div class="transaction-description">
+                            ${transaction.description || 'Không có mô tả'}
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="transaction-amount ${transaction.type}">
+                            ${transaction.type === 'income' ? '+' : '-'}${formatMoney(transaction.amount)}
+                        </div>
+                        <div class="transaction-date">${formatDate(transaction.date)}</div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteTransaction('${transaction._id}')">Xóa</button>
                 </div>
-                <div class="transaction-description">
-                    ${transaction.description || 'Không có mô tả'}
-                </div>
-            </div>
-            <div style="text-align: right;">
-                <div class="transaction-amount ${transaction.type}">
-                    ${transaction.type === 'income' ? '+' : '-'}${formatMoney(transaction.amount)}
-                </div>
-                <div class="transaction-date">${formatDate(transaction.date)}</div>
-            </div>
-            <button class="delete-btn" onclick="deleteTransaction('${transaction._id}')">Xóa</button>
-        </div>
-    `).join('');
-}
-
+            `).join('');
+        }
+        
         // Xóa giao dịch
         async function deleteTransaction(id) {
-    if (confirm('Bạn có chắc chắn muốn xóa giao dịch này?')) {
-        try {
-            const response = await fetch(`http://localhost:3000/api/transactions/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
+            if (confirm('Bạn có chắc chắn muốn xóa giao dịch này?')) {
+                try {
+                    const response = await fetch(`http://localhost:3000/api/transactions/${id}`, { method: 'DELETE' });
+                    const result = await response.json();
+                    if (!response.ok || !result.success) throw new Error(result.message);
+                    await fetchTransactions();
+                    displayTransactions();
+                    updateStats();
+                    alert('Xóa giao dịch thành công!');
+                } catch (error) {
+                    console.error('Lỗi khi xóa giao dịch:', error);
+                    alert('Lỗi khi xóa giao dịch: ' + error.message);
                 }
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status} - ${response.statusText}`);
             }
-
-            const result = await response.json();
-            
-            if (result.success) {
-                // Tải lại danh sách giao dịch từ server
-                await fetchTransactions();
-                displayTransactions();
-                updateStats();
-                alert('Xóa giao dịch thành công!');
-            } else {
-                alert('Lỗi khi xóa giao dịch: ' + result.message);
-            }
-        } catch (error) {
-            console.error('Lỗi khi xóa giao dịch:', error);
-            alert('Lỗi khi xóa giao dịch! Vui lòng thử lại.');
         }
-    }
-}
-
-
+        
         // Cập nhật thống kê
         function updateStats() {
-            const totalIncome = transactions
-                .filter(t => t.type === 'income')
-                .reduce((sum, t) => sum + t.amount, 0);
-            
-            const totalExpense = transactions
-                .filter(t => t.type === 'expense')
-                .reduce((sum, t) => sum + t.amount, 0);
-            
+            const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const totalExpense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
             const totalProfit = totalIncome - totalExpense;
-            
             const today = new Date().toISOString().split('T')[0];
             const todayTransactions = transactions.filter(t => t.date === today).length;
-
+        
             document.getElementById('totalIncome').textContent = formatMoney(totalIncome);
             document.getElementById('totalExpense').textContent = formatMoney(totalExpense);
             document.getElementById('totalProfit').textContent = formatMoney(totalProfit);
             document.getElementById('todayTransactions').textContent = todayTransactions;
         }
-
-        // Áp dụng bộ lọc
-        function applyFilters() {
-            const filterType = document.getElementById('filterType').value;
-            const filterCategory = document.getElementById('filterCategory').value;
-            const filterFromDate = document.getElementById('filterFromDate').value;
-            const filterToDate = document.getElementById('filterToDate').value;
-
-            let filteredTransactions = transactions;
-
-            if (filterType) {
-                filteredTransactions = filteredTransactions.filter(t => t.type === filterType);
-            }
-
-            if (filterCategory) {
-                filteredTransactions = filteredTransactions.filter(t => t.category === filterCategory);
-            }
-
-            if (filterFromDate) {
-                filteredTransactions = filteredTransactions.filter(t => t.date >= filterFromDate);
-            }
-
-            if (filterToDate) {
-                filteredTransactions = filteredTransactions.filter(t => t.date <= filterToDate);
-            }
-
-            displayTransactions(filteredTransactions);
-        }
-
+        
         // Tạo báo cáo
         function generateReport() {
+            if (!Array.isArray(transactions) || transactions.length === 0) {
+                alert('Chưa có dữ liệu giao dịch để tạo báo cáo');
+                return;
+            }
+        
             const period = document.getElementById('reportPeriod').value;
             let filteredTransactions = [];
             let periodText = '';
-
+        
             const today = new Date();
             
             switch(period) {
@@ -351,21 +313,18 @@
                     filteredTransactions = transactions.filter(t => t.date === todayStr);
                     periodText = 'hôm nay';
                     break;
-                    
                 case 'week':
                     const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
                     const weekAgoStr = weekAgo.toISOString().split('T')[0];
                     filteredTransactions = transactions.filter(t => t.date >= weekAgoStr);
                     periodText = 'tuần này';
                     break;
-                    
                 case 'month':
                     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
                     const monthStartStr = monthStart.toISOString().split('T')[0];
                     filteredTransactions = transactions.filter(t => t.date >= monthStartStr);
                     periodText = 'tháng này';
                     break;
-                    
                 case 'year':
                     const yearStart = new Date(today.getFullYear(), 0, 1);
                     const yearStartStr = yearStart.toISOString().split('T')[0];
@@ -373,17 +332,11 @@
                     periodText = 'năm này';
                     break;
             }
-
-            const income = filteredTransactions
-                .filter(t => t.type === 'income')
-                .reduce((sum, t) => sum + t.amount, 0);
-            
-            const expense = filteredTransactions
-                .filter(t => t.type === 'expense')
-                .reduce((sum, t) => sum + t.amount, 0);
-            
+        
+            const income = filteredTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const expense = filteredTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
             const profit = income - expense;
-
+        
             document.getElementById('reportResult').style.display = 'block';
             document.getElementById('reportContent').innerHTML = `
                 <p><strong>Báo cáo ${periodText}:</strong></p>
@@ -393,53 +346,47 @@
                 <p> Số giao dịch: ${filteredTransactions.length}</p>
             `;
         }
-
         
-
         // Format tiền tệ
         function formatMoney(amount) {
-            return new Intl.NumberFormat('vi-VN', {
-                style: 'currency',
-                currency: 'VND'
-            }).format(amount);
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
         }
-
-        // Format ngày tháng
+        
+        // Format ngày
         function formatDate(dateString) {
             const date = new Date(dateString);
             return date.toLocaleDateString('vi-VN');
         }
+        
+        // Thiết lập ngày hôm nay
         function setupToday() {
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('date').value = today;
-}
-
-function updateCategoryOptions() {
-    const type = document.getElementById('type').value;
-    const categorySelect = document.getElementById('category');
-    
-    categorySelect.innerHTML = '<option value="">Chọn danh mục</option>';
-    
-    if (type && categories[type]) {
-        categories[type].forEach(cat => {
-            categorySelect.innerHTML += `<option value="${cat}">${cat}</option>`;
-        });
-    }
-}
-
-function updateFilterCategories() {
-    const filterCategory = document.getElementById('filterCategory');
-    const allCategories = [...categories.income, ...categories.expense];
-    
-    filterCategory.innerHTML = '<option value="">Tất cả danh mục</option>';
-    allCategories.forEach(cat => {
-        filterCategory.innerHTML += `<option value="${cat}">${cat}</option>`;
-    });
-}
-fetch('http://localhost:3000/api/transactions/all')
-  .then(response => response.json())
-  .then(data => console.log(data))
-  .catch(error => console.error('Lỗi:', error));
-    </script>
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+        }
+        
+        // Cập nhật danh mục theo loại giao dịch
+        function updateCategoryOptions() {
+            const type = document.getElementById('type').value;
+            const categorySelect = document.getElementById('category');
+            categorySelect.innerHTML = '<option value="">Chọn danh mục</option>';
+            if (type && categories[type]) {
+                categories[type].forEach(cat => {
+                    categorySelect.innerHTML += `<option value="${cat}">${cat}</option>`;
+                });
+            }
+        }
+        
+        // Cập nhật danh mục bộ lọc
+        function updateFilterCategories() {
+            const filterCategory = document.getElementById('filterCategory');
+            const allCategories = [...categories.income, ...categories.expense];
+            filterCategory.innerHTML = '<option value="">Tất cả danh mục</option>';
+            allCategories.forEach(cat => {
+                filterCategory.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+        }
+        </script>
+        
+        
 </body>
 </html>
